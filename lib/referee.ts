@@ -9,7 +9,9 @@ import {
   type RoundData,
 } from './schemas';
 
-const client = new Anthropic();
+const client = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
 
 export interface RefereeConfig {
   model: ModelType;
