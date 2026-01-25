@@ -64,6 +64,9 @@ export async function runDebaterTurn(
   let finalResponse = '';
 
   while (continueLoop) {
+    // Reset finalResponse each iteration - we only want text from the final response
+    finalResponse = '';
+
     // Use extended thinking with tools
     const response = await client.messages.create({
       model: modelId,
