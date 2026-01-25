@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import type { DebaterOutput, ModelType } from '@/lib/schemas';
 import { ExternalLink } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 interface DebaterViewProps {
   name: string;
@@ -70,8 +71,8 @@ export function DebaterView({
             {/* Argument */}
             <div>
               <h4 className="text-sm font-semibold mb-2">Argument</h4>
-              <div className="text-sm whitespace-pre-wrap leading-relaxed">
-                {output.argument}
+              <div className="text-sm leading-relaxed prose prose-sm max-w-none prose-p:my-2 prose-headings:my-2 prose-ul:my-2 prose-ol:my-2">
+                <ReactMarkdown>{output.argument}</ReactMarkdown>
               </div>
             </div>
 
