@@ -218,11 +218,26 @@ function parseDebaterOutput(response: string): DebaterOutput {
     const validated = DebaterOutputSchema.parse(parsed);
     return validated;
   } catch (error) {
-    // Return a minimal valid output with the raw response as argument
     console.error('Failed to parse debater output:', error);
+
+    // Try to extract just the prose before any JSON/code block as fallback
+    let fallbackArgument = response;
+
+    // Remove JSON code blocks
+    fallbackArgument = fallbackArgument.replace(/```json[\s\S]*?```/g, '').trim();
+
+    // Remove any remaining raw JSON objects (starting with { and ending with })
+    const jsonStartIdx = fallbackArgument.indexOf('{"');
+    if (jsonStartIdx > 0) {
+      fallbackArgument = fallbackArgument.slice(0, jsonStartIdx).trim();
+    }
+
+    // Clean up any trailing incomplete markers
+    fallbackArgument = fallbackArgument.replace(/```\s*$/, '').trim();
+
     return {
       confidence: 0.5,
-      argument: response || 'Unable to parse argument',
+      argument: fallbackArgument || response || 'Unable to parse argument',
     };
   }
 }
