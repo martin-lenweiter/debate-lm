@@ -175,6 +175,7 @@ export async function runDebate(options: OrchestratorOptions): Promise<DebateSta
 
         case 'USER_INPUT_NEEDED':
           state.status = 'paused';
+          state.currentRound++; // Increment so we continue to next round on resume
           emitEvent(onEvent, 'user_input_needed', {
             prompt: refereeResult.output.user_input_prompt,
             round,
