@@ -89,40 +89,41 @@ A structured multi-LLM debate system where 2 debaters argue toward truth on a to
 
 **IMPORTANT: Always test in a live browser before handing over work.** Use browser automation tools to navigate to localhost:3000 and verify the application works correctly. Do not rely solely on build/lint passing - visually confirm the UI renders and functions as expected.
 
-1. **Run linter**: `npm run lint` - No errors
-2. **Build check**: `npm run build` - Build must succeed
-3. **Start app**: `npm run dev` - Navigate to localhost:3000
-4. **Browser checks**:
+1. **Run test suite**: `npm run test` - All tests must pass
+2. **Run linter**: `npm run lint` - No errors
+3. **Build check**: `npm run build` - Build must succeed
+4. **Start app**: `npm run dev` - Navigate to localhost:3000
+5. **Browser checks**:
    - No console errors (open browser DevTools)
    - UI renders correctly without hydration mismatches
    - All components display properly
-5. **Test debate flow**:
+6. **Test debate flow**:
    - Start a debate with a simple topic
    - Verify debaters produce valid JSON output
    - Check referee correctly detects consensus/deadlock
    - Confirm user input modal appears when triggered
    - Test file upload for context documents
-6. **Tool testing**:
+7. **Tool testing**:
    - Test web_search returns results
    - Verify web_fetch retrieves content
    - Check python_exec executes safely
    - Validate file operations work correctly
-7. **Edge case testing**:
+8. **Edge case testing**:
    - Test with empty/invalid inputs
    - Verify error handling for API failures
    - Check timeout handling for long-running debates
    - Test max rounds limit
    - Try uploading various file types
-8. **JSON validation**:
+9. **JSON validation**:
    - Verify all outputs match defined schemas
    - Check confidence values are in valid ranges (0.0-1.0)
    - Ensure all required fields are present
-9. **UI/UX testing**:
+10. **UI/UX testing**:
    - Test responsive design on different screen sizes
    - Verify loading states display correctly
    - Check real-time updates during debate rounds
    - Ensure debate history is preserved
-10. **Commit**: Only if all checks pass - use `gcp "brief message"`
+11. **Commit**: Only if all checks pass - use `gcp "brief message"`
 
 ## What "Working" Means
 
