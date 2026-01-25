@@ -584,11 +584,11 @@ The state viewer is purely a consumer of existing JSON outputs, applying present
 
 ### Next Features
 - bug: when selecting haiku it still says it selects sonnet
-- fix browser extension
 - debate UI panel fixes and enhancements - 1. expand current position to see full screen 2. fix confidence over time
-- optimize speed. Especially at UI level, LLM's must be the bottleneck. It seems right now there are issues at the UI level, for instance the referee waits for a long time to start even after the 2 debaters are done. Potentially make a less thorough prompt to go faster with LLMs too.
+- optimize speed. Especially at UI level, LLM's must be the bottleneck. It seems right now there are issues at the UI level, for instance the referee waits for a long time to start even after the 2 debaters are done. Potentially make a less thorough prompt to go faster with LLMs too, especially on the referee side.
 - add login - no sign up
 - deploy to vercel, remove all secrets from codebase (incl. api key)
+- run the project multiple times and fix any bug encountered
 - do a 360 security check. No one can access if not logged in, no data is stored, no data can be intercepted
 - store debate history in a structured, user friendly way. Thoroughly check horizontal partitioning.
 - add more models - Gemini, ChatGPT, DeepSeek, Qwen, Mistral
