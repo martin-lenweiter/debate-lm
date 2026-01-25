@@ -75,7 +75,7 @@ export async function runDebaterTurn(
       max_tokens: 16000,
       thinking: {
         type: 'enabled',
-        budget_tokens: 10000,
+        budget_tokens: 5000,
       },
       tools: DEBATER_TOOLS as Anthropic.Messages.Tool[],
       messages: messages as Anthropic.Messages.MessageParam[],

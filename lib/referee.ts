@@ -66,7 +66,7 @@ export async function runRefereeTurn(
     max_tokens: 8000,
     thinking: {
       type: 'enabled',
-      budget_tokens: 6000,
+      budget_tokens: 4000,
     },
     messages: [{ role: 'user', content: prompt }],
   });

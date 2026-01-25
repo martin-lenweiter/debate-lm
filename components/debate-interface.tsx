@@ -239,7 +239,15 @@ export function DebateInterface() {
         }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      // Detect common network/timeout errors and provide helpful messages
+      if (message.toLowerCase().includes('network') ||
+          message.toLowerCase().includes('failed to fetch') ||
+          message.toLowerCase().includes('aborted')) {
+        setError('Connection lost. The server may have timed out. Try a simpler topic or refresh the page.');
+      } else {
+        setError(message);
+      }
       setStatus('error');
     }
   }, [
