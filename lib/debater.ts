@@ -61,23 +61,26 @@ export async function runDebaterTurn(
   const thinkingBlocks: string[] = [];
   const toolCalls: Array<{ name: string; input: unknown; result: string }> = [];
 
-  // Tool use loop
+  // Tool use loop - limit iterations to prevent timeout
+  const MAX_TOOL_ITERATIONS = 2;
   let continueLoop = true;
   let finalResponse = '';
+  let toolIteration = 0;
 
   while (continueLoop) {
     // Reset finalResponse each iteration - we only want text from the final response
     finalResponse = '';
 
-    // Use extended thinking with tools
+    // Use extended thinking with tools (disable tools after hitting iteration limit)
+    const useTools = toolIteration < MAX_TOOL_ITERATIONS;
     const response = await client.messages.create({
       model: modelId,
       max_tokens: 16000,
       thinking: {
         type: 'enabled',
-        budget_tokens: 5000,
+        budget_tokens: useTools ? 5000 : 3000, // Less thinking for final response
       },
-      tools: DEBATER_TOOLS as Anthropic.Messages.Tool[],
+      ...(useTools && { tools: DEBATER_TOOLS as Anthropic.Messages.Tool[] }),
       messages: messages as Anthropic.Messages.MessageParam[],
     });
 
@@ -137,6 +140,7 @@ export async function runDebaterTurn(
 
       // Add tool results as user message
       messages.push({ role: 'user', content: toolResults });
+      toolIteration++;
     } else {
       // end_turn or other stop reason
       continueLoop = false;
