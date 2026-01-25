@@ -2,7 +2,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import type { RefereeOutput, ModelType } from '@/lib/schemas';
 import { CheckCircle, XCircle, AlertCircle, HelpCircle, Clock } from 'lucide-react';
 
@@ -36,8 +35,6 @@ export function RefereeView({
   output,
   isThinking,
   thinkingText,
-  debaterAName,
-  debaterBName,
 }: RefereeViewProps) {
   return (
     <Card className="border-l-4 border-l-referee">
@@ -79,170 +76,11 @@ export function RefereeView({
 
         {output && (
           <>
-            {/* Round Summary */}
+            {/* Summary */}
             <div>
-              <h4 className="text-sm font-semibold mb-1">Round Summary</h4>
-              <p className="text-sm">{output.round_summary}</p>
-            </div>
-
-            {/* Debater Assessments */}
-            <div className="grid grid-cols-2 gap-4">
-              {/* Debater A Assessment */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-semibold">{debaterAName}</h4>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground w-24">
-                      Evidence
-                    </span>
-                    <Progress
-                      value={output.debater_a_assessment.evidence_quality * 100}
-                      className="flex-1 h-2"
-                    />
-                    <span className="text-xs w-8">
-                      {Math.round(
-                        output.debater_a_assessment.evidence_quality * 100
-                      )}
-                      %
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground w-24">
-                      Reasoning
-                    </span>
-                    <Progress
-                      value={output.debater_a_assessment.reasoning_quality * 100}
-                      className="flex-1 h-2"
-                    />
-                    <span className="text-xs w-8">
-                      {Math.round(
-                        output.debater_a_assessment.reasoning_quality * 100
-                      )}
-                      %
-                    </span>
-                  </div>
-                </div>
-                {output.debater_a_assessment.strengths.length > 0 && (
-                  <div>
-                    <span className="text-xs text-green-600 font-medium">
-                      Strengths:
-                    </span>
-                    <ul className="text-xs text-muted-foreground list-disc list-inside">
-                      {output.debater_a_assessment.strengths.map((s, i) => (
-                        <li key={i}>{s}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {output.debater_a_assessment.weaknesses.length > 0 && (
-                  <div>
-                    <span className="text-xs text-red-600 font-medium">
-                      Weaknesses:
-                    </span>
-                    <ul className="text-xs text-muted-foreground list-disc list-inside">
-                      {output.debater_a_assessment.weaknesses.map((w, i) => (
-                        <li key={i}>{w}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-
-              {/* Debater B Assessment */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-semibold">{debaterBName}</h4>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground w-24">
-                      Evidence
-                    </span>
-                    <Progress
-                      value={output.debater_b_assessment.evidence_quality * 100}
-                      className="flex-1 h-2"
-                    />
-                    <span className="text-xs w-8">
-                      {Math.round(
-                        output.debater_b_assessment.evidence_quality * 100
-                      )}
-                      %
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground w-24">
-                      Reasoning
-                    </span>
-                    <Progress
-                      value={output.debater_b_assessment.reasoning_quality * 100}
-                      className="flex-1 h-2"
-                    />
-                    <span className="text-xs w-8">
-                      {Math.round(
-                        output.debater_b_assessment.reasoning_quality * 100
-                      )}
-                      %
-                    </span>
-                  </div>
-                </div>
-                {output.debater_b_assessment.strengths.length > 0 && (
-                  <div>
-                    <span className="text-xs text-green-600 font-medium">
-                      Strengths:
-                    </span>
-                    <ul className="text-xs text-muted-foreground list-disc list-inside">
-                      {output.debater_b_assessment.strengths.map((s, i) => (
-                        <li key={i}>{s}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {output.debater_b_assessment.weaknesses.length > 0 && (
-                  <div>
-                    <span className="text-xs text-red-600 font-medium">
-                      Weaknesses:
-                    </span>
-                    <ul className="text-xs text-muted-foreground list-disc list-inside">
-                      {output.debater_b_assessment.weaknesses.map((w, i) => (
-                        <li key={i}>{w}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Areas of Agreement/Disagreement */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <h4 className="text-sm font-semibold text-green-600 mb-1">
-                  Areas of Agreement
-                </h4>
-                {output.areas_of_agreement.length > 0 ? (
-                  <ul className="text-xs text-muted-foreground list-disc list-inside">
-                    {output.areas_of_agreement.map((a, i) => (
-                      <li key={i}>{a}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-xs text-muted-foreground italic">
-                    None yet
-                  </p>
-                )}
-              </div>
-              <div>
-                <h4 className="text-sm font-semibold text-red-600 mb-1">
-                  Areas of Disagreement
-                </h4>
-                {output.areas_of_disagreement.length > 0 ? (
-                  <ul className="text-xs text-muted-foreground list-disc list-inside">
-                    {output.areas_of_disagreement.map((d, i) => (
-                      <li key={i}>{d}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-xs text-muted-foreground italic">
-                    None identified
-                  </p>
-                )}
+              <h4 className="text-sm font-semibold mb-2">Analysis</h4>
+              <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                {output.summary}
               </div>
             </div>
 
@@ -277,18 +115,6 @@ export function RefereeView({
                   Deadlock
                 </h4>
                 <p className="text-sm text-red-700">{output.deadlock_reason}</p>
-              </div>
-            )}
-
-            {/* Recommendations */}
-            {output.recommendations && output.recommendations.length > 0 && (
-              <div>
-                <h4 className="text-sm font-semibold mb-1">Recommendations</h4>
-                <ul className="text-sm text-muted-foreground list-disc list-inside">
-                  {output.recommendations.map((r, i) => (
-                    <li key={i}>{r}</li>
-                  ))}
-                </ul>
               </div>
             )}
           </>

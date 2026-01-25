@@ -3,10 +3,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { EvidenceCard } from './evidence-card';
 import type { DebaterOutput, ModelType } from '@/lib/schemas';
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import { useState } from 'react';
+import { ExternalLink } from 'lucide-react';
 
 interface DebaterViewProps {
   name: string;
@@ -25,21 +23,9 @@ export function DebaterView({
   thinkingText,
   variant,
 }: DebaterViewProps) {
-  const [expandedClaims, setExpandedClaims] = useState<Set<number>>(new Set());
-
   const badgeVariant = variant === 'A' ? 'debaterA' : 'debaterB';
   const borderColor =
     variant === 'A' ? 'border-l-debaterA' : 'border-l-debaterB';
-
-  const toggleClaim = (index: number) => {
-    const next = new Set(expandedClaims);
-    if (next.has(index)) {
-      next.delete(index);
-    } else {
-      next.add(index);
-    }
-    setExpandedClaims(next);
-  };
 
   return (
     <Card className={`border-l-4 ${borderColor}`}>
@@ -81,82 +67,38 @@ export function DebaterView({
 
         {output && (
           <>
-            {/* Position */}
+            {/* Argument */}
             <div>
-              <h4 className="text-sm font-semibold mb-1">Position</h4>
-              <p className="text-sm">{output.position}</p>
+              <h4 className="text-sm font-semibold mb-2">Argument</h4>
+              <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                {output.argument}
+              </div>
             </div>
 
-            {/* Claims */}
-            {output.claims.length > 0 && (
+            {/* Sources */}
+            {output.sources && output.sources.length > 0 && (
               <div>
-                <h4 className="text-sm font-semibold mb-2">
-                  Claims ({output.claims.length})
-                </h4>
-                <div className="space-y-2">
-                  {output.claims.map((claim, idx) => (
+                <h4 className="text-sm font-semibold mb-2">Sources</h4>
+                <div className="space-y-1">
+                  {output.sources.map((source, idx) => (
                     <div
                       key={idx}
-                      className="border rounded-md overflow-hidden"
+                      className="flex items-center gap-2 text-sm text-muted-foreground"
                     >
-                      <button
-                        onClick={() => toggleClaim(idx)}
-                        className="w-full p-3 text-left hover:bg-muted/50 flex items-start justify-between gap-2"
-                      >
-                        <div className="flex-1">
-                          <p className="text-sm">{claim.statement}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="outline" className="text-xs">
-                              {Math.round(claim.confidence * 100)}% confident
-                            </Badge>
-                            <span className="text-xs text-muted-foreground">
-                              {claim.sources.length} source
-                              {claim.sources.length !== 1 ? 's' : ''}
-                            </span>
-                          </div>
-                        </div>
-                        {expandedClaims.has(idx) ? (
-                          <ChevronUp className="h-4 w-4 mt-1 text-muted-foreground" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4 mt-1 text-muted-foreground" />
-                        )}
-                      </button>
-                      {expandedClaims.has(idx) && (
-                        <div className="p-3 pt-0 space-y-2">
-                          {claim.sources.map((source, sIdx) => (
-                            <EvidenceCard key={sIdx} source={source} />
-                          ))}
-                          {claim.rebuttals_considered &&
-                            claim.rebuttals_considered.length > 0 && (
-                              <div className="text-xs text-muted-foreground mt-2">
-                                <span className="font-medium">
-                                  Rebuttals considered:
-                                </span>{' '}
-                                {claim.rebuttals_considered.join('; ')}
-                              </div>
-                            )}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Counterarguments */}
-            {output.counterarguments.length > 0 && (
-              <div>
-                <h4 className="text-sm font-semibold mb-2">Counterarguments</h4>
-                <div className="space-y-2">
-                  {output.counterarguments.map((ca, idx) => (
-                    <div key={idx} className="p-3 bg-muted/50 rounded-md">
-                      <p className="text-xs text-muted-foreground mb-1">
-                        Re: {ca.target_claim}
-                      </p>
-                      <p className="text-sm">{ca.rebuttal}</p>
-                      <Badge variant="outline" className="text-xs mt-1">
-                        {Math.round(ca.confidence * 100)}% confident
+                      <Badge variant="outline" className="text-xs">
+                        {source.type}
                       </Badge>
+                      <span>{source.label}</span>
+                      {source.url && (
+                        <a
+                          href={source.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 hover:underline inline-flex items-center gap-1"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -166,45 +108,18 @@ export function DebaterView({
             {/* Concessions */}
             {output.concessions && output.concessions.length > 0 && (
               <div>
-                <h4 className="text-sm font-semibold mb-2">Concessions</h4>
+                <h4 className="text-sm font-semibold mb-2 text-amber-600">
+                  Concessions
+                </h4>
                 <ul className="list-disc list-inside text-sm space-y-1">
                   {output.concessions.map((c, idx) => (
-                    <li key={idx}>{c}</li>
+                    <li key={idx} className="text-muted-foreground">
+                      {c}
+                    </li>
                   ))}
                 </ul>
               </div>
             )}
-
-            {/* Position Changes */}
-            {output.position_changes && output.position_changes.length > 0 && (
-              <div>
-                <h4 className="text-sm font-semibold mb-2">Position Changes</h4>
-                <div className="space-y-2">
-                  {output.position_changes.map((pc, idx) => (
-                    <div key={idx} className="p-2 border rounded-md text-sm">
-                      <div className="flex items-center gap-2">
-                        <span className="text-muted-foreground line-through">
-                          {pc.from}
-                        </span>
-                        <span>→</span>
-                        <span className="font-medium">{pc.to}</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Trigger: {pc.trigger} (Round {pc.round})
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Reasoning Summary */}
-            <div>
-              <h4 className="text-sm font-semibold mb-1">Reasoning Summary</h4>
-              <p className="text-sm text-muted-foreground">
-                {output.reasoning_summary}
-              </p>
-            </div>
           </>
         )}
 

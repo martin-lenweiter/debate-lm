@@ -165,23 +165,24 @@ function formatHistory(
       const myOutput = isDebaterA ? round.debaterAOutput : round.debaterBOutput;
       const theirOutput = isDebaterA ? round.debaterBOutput : round.debaterAOutput;
 
+      const myConcessions = myOutput.concessions?.length
+        ? `\n**${debaterName} conceded**: ${myOutput.concessions.join('; ')}`
+        : '';
+      const theirConcessions = theirOutput.concessions?.length
+        ? `\n**${opponentName} conceded**: ${theirOutput.concessions.join('; ')}`
+        : '';
+
       return `### Round ${round.round}
 
-**${debaterName}'s position**: ${myOutput.position}
-**${debaterName}'s confidence**: ${myOutput.confidence}
-**${debaterName}'s key claims**:
-${myOutput.claims.map((c) => `- ${c.statement} (confidence: ${c.confidence})`).join('\n')}
+**${debaterName}** (${Math.round(myOutput.confidence * 100)}% confident):
+${myOutput.argument}${myConcessions}
 
-**${opponentName}'s position**: ${theirOutput.position}
-**${opponentName}'s confidence**: ${theirOutput.confidence}
-**${opponentName}'s key claims**:
-${theirOutput.claims.map((c) => `- ${c.statement} (confidence: ${c.confidence})`).join('\n')}
+**${opponentName}** (${Math.round(theirOutput.confidence * 100)}% confident):
+${theirOutput.argument}${theirConcessions}
 
-**Referee summary**: ${round.refereeOutput.round_summary}
-**Areas of agreement**: ${round.refereeOutput.areas_of_agreement.join(', ') || 'None yet'}
-**Areas of disagreement**: ${round.refereeOutput.areas_of_disagreement.join(', ') || 'None identified'}`;
+**Referee**: ${round.refereeOutput.summary}`;
     })
-    .join('\n\n');
+    .join('\n\n---\n\n');
 }
 
 function formatUserInputs(
@@ -195,13 +196,19 @@ function formatUserInputs(
 }
 
 function parseDebaterOutput(response: string): DebaterOutput {
-  // Most reliable: find JSON object boundaries directly
-  const startIdx = response.indexOf('{');
-  const endIdx = response.lastIndexOf('}');
+  // Try to find JSON in code block first
+  const codeBlockMatch = response.match(/```json\s*([\s\S]*?)\s*```/);
+  let jsonStr = '';
 
-  let jsonStr = response;
-  if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
-    jsonStr = response.slice(startIdx, endIdx + 1);
+  if (codeBlockMatch) {
+    jsonStr = codeBlockMatch[1];
+  } else {
+    // Fallback: find JSON object boundaries
+    const startIdx = response.indexOf('{');
+    const endIdx = response.lastIndexOf('}');
+    if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+      jsonStr = response.slice(startIdx, endIdx + 1);
+    }
   }
 
   try {
@@ -209,14 +216,11 @@ function parseDebaterOutput(response: string): DebaterOutput {
     const validated = DebaterOutputSchema.parse(parsed);
     return validated;
   } catch (error) {
-    // Return a minimal valid output if parsing fails
+    // Return a minimal valid output with the raw response as argument
     console.error('Failed to parse debater output:', error);
     return {
-      position: 'Unable to parse position',
       confidence: 0.5,
-      claims: [],
-      counterarguments: [],
-      reasoning_summary: `Parse error: ${response.slice(0, 200)}...`,
+      argument: response || 'Unable to parse argument',
     };
   }
 }

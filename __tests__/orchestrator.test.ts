@@ -5,11 +5,8 @@ import type { DebateState, SSEEvent } from '@/lib/schemas';
 vi.mock('@/lib/debater', () => ({
   runDebaterTurn: vi.fn().mockResolvedValue({
     output: {
-      position: 'Test position',
       confidence: 0.8,
-      claims: [],
-      counterarguments: [],
-      reasoning_summary: 'Test reasoning',
+      argument: 'Test argument with reasoning and evidence.',
     },
     toolCalls: [],
     thinkingBlocks: [],
@@ -37,21 +34,7 @@ describe('Orchestrator', () => {
       vi.mocked(runRefereeTurn).mockResolvedValueOnce({
         output: {
           verdict: 'USER_INPUT_NEEDED',
-          round_summary: 'Need user input',
-          debater_a_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          debater_b_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          areas_of_agreement: [],
-          areas_of_disagreement: [],
+          summary: 'Need user input to clarify the question.',
           user_input_prompt: 'Please clarify your question',
         },
         thinkingBlocks: [],
@@ -62,21 +45,7 @@ describe('Orchestrator', () => {
       vi.mocked(runRefereeTurn).mockResolvedValueOnce({
         output: {
           verdict: 'CONSENSUS_REACHED',
-          round_summary: 'Consensus reached',
-          debater_a_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          debater_b_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          areas_of_agreement: ['All agree'],
-          areas_of_disagreement: [],
+          summary: 'Both debaters reached agreement on the core points.',
           consensus_statement: 'We agree',
         },
         thinkingBlocks: [],
@@ -133,21 +102,7 @@ describe('Orchestrator', () => {
       vi.mocked(runRefereeTurn).mockResolvedValueOnce({
         output: {
           verdict: 'USER_INPUT_NEEDED',
-          round_summary: 'Need input',
-          debater_a_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          debater_b_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          areas_of_agreement: [],
-          areas_of_disagreement: [],
+          summary: 'Need input from user.',
           user_input_prompt: 'Clarify',
         },
         thinkingBlocks: [],
@@ -158,21 +113,7 @@ describe('Orchestrator', () => {
       vi.mocked(runRefereeTurn).mockResolvedValueOnce({
         output: {
           verdict: 'MAX_ROUNDS_REACHED',
-          round_summary: 'Done',
-          debater_a_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          debater_b_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          areas_of_agreement: [],
-          areas_of_disagreement: [],
+          summary: 'Reached maximum rounds.',
         },
         thinkingBlocks: [],
         rawResponse: '{}',
@@ -220,21 +161,7 @@ describe('Orchestrator', () => {
       vi.mocked(runRefereeTurn).mockResolvedValueOnce({
         output: {
           verdict: 'USER_INPUT_NEEDED',
-          round_summary: 'Ambiguous topic',
-          debater_a_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          debater_b_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          areas_of_agreement: [],
-          areas_of_disagreement: [],
+          summary: 'Topic is ambiguous.',
           user_input_prompt: 'What specific aspect would you like us to focus on?',
         },
         thinkingBlocks: [],
@@ -274,21 +201,7 @@ describe('Orchestrator', () => {
       vi.mocked(runRefereeTurn).mockResolvedValueOnce({
         output: {
           verdict: 'CONTINUE',
-          round_summary: 'Good progress',
-          debater_a_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          debater_b_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          areas_of_agreement: [],
-          areas_of_disagreement: [],
+          summary: 'Good progress being made.',
         },
         thinkingBlocks: [],
         rawResponse: '{}',
@@ -298,21 +211,7 @@ describe('Orchestrator', () => {
       vi.mocked(runRefereeTurn).mockResolvedValueOnce({
         output: {
           verdict: 'USER_INPUT_NEEDED',
-          round_summary: 'Need clarification',
-          debater_a_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          debater_b_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          areas_of_agreement: [],
-          areas_of_disagreement: [],
+          summary: 'Need clarification from user.',
           user_input_prompt: 'Clarify please',
         },
         thinkingBlocks: [],
@@ -323,21 +222,7 @@ describe('Orchestrator', () => {
       vi.mocked(runRefereeTurn).mockResolvedValueOnce({
         output: {
           verdict: 'CONSENSUS_REACHED',
-          round_summary: 'Agreement',
-          debater_a_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          debater_b_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          areas_of_agreement: ['All'],
-          areas_of_disagreement: [],
+          summary: 'Agreement reached.',
           consensus_statement: 'Done',
         },
         thinkingBlocks: [],
@@ -389,21 +274,7 @@ describe('Orchestrator', () => {
       vi.mocked(runRefereeTurn).mockResolvedValueOnce({
         output: {
           verdict: 'USER_INPUT_NEEDED',
-          round_summary: 'First pause',
-          debater_a_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          debater_b_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          areas_of_agreement: [],
-          areas_of_disagreement: [],
+          summary: 'First pause for input.',
           user_input_prompt: 'First question',
         },
         thinkingBlocks: [],
@@ -414,21 +285,7 @@ describe('Orchestrator', () => {
       vi.mocked(runRefereeTurn).mockResolvedValueOnce({
         output: {
           verdict: 'USER_INPUT_NEEDED',
-          round_summary: 'Second pause',
-          debater_a_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          debater_b_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          areas_of_agreement: [],
-          areas_of_disagreement: [],
+          summary: 'Second pause for input.',
           user_input_prompt: 'Second question',
         },
         thinkingBlocks: [],
@@ -439,21 +296,7 @@ describe('Orchestrator', () => {
       vi.mocked(runRefereeTurn).mockResolvedValueOnce({
         output: {
           verdict: 'CONSENSUS_REACHED',
-          round_summary: 'Final',
-          debater_a_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          debater_b_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          areas_of_agreement: ['All'],
-          areas_of_disagreement: [],
+          summary: 'Final agreement.',
           consensus_statement: 'Agreed',
         },
         thinkingBlocks: [],
@@ -517,21 +360,7 @@ describe('Orchestrator', () => {
       vi.mocked(runRefereeTurn).mockResolvedValueOnce({
         output: {
           verdict: 'USER_INPUT_NEEDED',
-          round_summary: 'Need input',
-          debater_a_assessment: {
-            strengths: ['Strong argument'],
-            weaknesses: ['Lacks evidence'],
-            evidence_quality: 0.7,
-            reasoning_quality: 0.8,
-          },
-          debater_b_assessment: {
-            strengths: ['Good logic'],
-            weaknesses: ['Too verbose'],
-            evidence_quality: 0.6,
-            reasoning_quality: 0.9,
-          },
-          areas_of_agreement: ['Point 1'],
-          areas_of_disagreement: ['Point 2'],
+          summary: 'Debater A made strong arguments but lacked evidence. Debater B showed good logic but was verbose.',
           user_input_prompt: 'Please help',
         },
         thinkingBlocks: [],
@@ -541,21 +370,7 @@ describe('Orchestrator', () => {
       vi.mocked(runRefereeTurn).mockResolvedValueOnce({
         output: {
           verdict: 'CONSENSUS_REACHED',
-          round_summary: 'Done',
-          debater_a_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          debater_b_assessment: {
-            strengths: [],
-            weaknesses: [],
-            evidence_quality: 0.5,
-            reasoning_quality: 0.5,
-          },
-          areas_of_agreement: ['All'],
-          areas_of_disagreement: [],
+          summary: 'Both debaters agreed on the core points.',
           consensus_statement: 'Agreed',
         },
         thinkingBlocks: [],
@@ -579,7 +394,7 @@ describe('Orchestrator', () => {
 
       // Capture round 1 data
       const round1Data = pausedState.rounds[0];
-      expect(round1Data.refereeOutput.debater_a_assessment.strengths).toContain('Strong argument');
+      expect(round1Data.refereeOutput.summary).toContain('strong arguments');
 
       const finalState = await resumeDebate(pausedState, 'test-preserve', 'User input', onEvent);
 

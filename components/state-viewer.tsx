@@ -2,7 +2,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import type { RoundData } from '@/lib/schemas';
 
 interface StateViewerProps {
@@ -20,18 +19,22 @@ export function StateViewer({
 
   const latestRound = rounds[rounds.length - 1];
 
-  // Calculate agreement count
-  const agreementCount =
-    latestRound.refereeOutput.areas_of_agreement.length;
-  const disagreementCount =
-    latestRound.refereeOutput.areas_of_disagreement.length;
-
   // Get confidence history
   const confidenceHistory = rounds.map((r) => ({
     round: r.round,
     a: r.debaterAOutput.confidence,
     b: r.debaterBOutput.confidence,
   }));
+
+  // Count total concessions
+  const totalConcessionsA = rounds.reduce(
+    (sum, r) => sum + (r.debaterAOutput.concessions?.length || 0),
+    0
+  );
+  const totalConcessionsB = rounds.reduce(
+    (sum, r) => sum + (r.debaterBOutput.concessions?.length || 0),
+    0
+  );
 
   return (
     <Card>
@@ -82,25 +85,25 @@ export function StateViewer({
           </div>
         </div>
 
-        {/* Agreement/Disagreement Stats */}
+        {/* Concessions Stats */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="text-center p-2 bg-green-50 rounded-md">
-            <div className="text-2xl font-bold text-green-600">
-              {agreementCount}
+          <div className="text-center p-2 bg-amber-50 rounded-md">
+            <div className="text-2xl font-bold text-amber-600">
+              {totalConcessionsA}
             </div>
-            <div className="text-xs text-green-700">Agreements</div>
+            <div className="text-xs text-amber-700">{debaterAName} Concessions</div>
           </div>
-          <div className="text-center p-2 bg-red-50 rounded-md">
-            <div className="text-2xl font-bold text-red-600">
-              {disagreementCount}
+          <div className="text-center p-2 bg-amber-50 rounded-md">
+            <div className="text-2xl font-bold text-amber-600">
+              {totalConcessionsB}
             </div>
-            <div className="text-xs text-red-700">Disagreements</div>
+            <div className="text-xs text-amber-700">{debaterBName} Concessions</div>
           </div>
         </div>
 
-        {/* Position Tracker */}
+        {/* Current Argument Preview */}
         <div>
-          <h4 className="text-sm font-semibold mb-2">Current Positions</h4>
+          <h4 className="text-sm font-semibold mb-2">Latest Arguments</h4>
           <div className="space-y-2">
             <div className="p-2 bg-muted/50 rounded">
               <div className="flex items-center gap-2 mb-1">
@@ -112,7 +115,7 @@ export function StateViewer({
                 </span>
               </div>
               <p className="text-xs text-muted-foreground line-clamp-2">
-                {latestRound.debaterAOutput.position}
+                {latestRound.debaterAOutput.argument.slice(0, 150)}...
               </p>
             </div>
             <div className="p-2 bg-muted/50 rounded">
@@ -125,49 +128,8 @@ export function StateViewer({
                 </span>
               </div>
               <p className="text-xs text-muted-foreground line-clamp-2">
-                {latestRound.debaterBOutput.position}
+                {latestRound.debaterBOutput.argument.slice(0, 150)}...
               </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Evidence Quality */}
-        <div>
-          <h4 className="text-sm font-semibold mb-2">Evidence Quality</h4>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="text-xs w-20 truncate">{debaterAName}</span>
-              <Progress
-                value={
-                  latestRound.refereeOutput.debater_a_assessment
-                    .evidence_quality * 100
-                }
-                className="flex-1 h-2"
-              />
-              <span className="text-xs w-8">
-                {Math.round(
-                  latestRound.refereeOutput.debater_a_assessment
-                    .evidence_quality * 100
-                )}
-                %
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs w-20 truncate">{debaterBName}</span>
-              <Progress
-                value={
-                  latestRound.refereeOutput.debater_b_assessment
-                    .evidence_quality * 100
-                }
-                className="flex-1 h-2"
-              />
-              <span className="text-xs w-8">
-                {Math.round(
-                  latestRound.refereeOutput.debater_b_assessment
-                    .evidence_quality * 100
-                )}
-                %
-              </span>
             </div>
           </div>
         </div>

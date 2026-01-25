@@ -96,11 +96,9 @@ function formatHistory(history: RoundData[]): string {
 
   return history
     .map((round) => {
-      return `### Round ${round.round} Summary
-${round.refereeOutput.round_summary}
-- Areas of agreement: ${round.refereeOutput.areas_of_agreement.join(', ') || 'None'}
-- Areas of disagreement: ${round.refereeOutput.areas_of_disagreement.join(', ') || 'None'}
-- Verdict: ${round.refereeOutput.verdict}`;
+      return `### Round ${round.round}
+${round.refereeOutput.summary}
+Verdict: ${round.refereeOutput.verdict}`;
     })
     .join('\n\n');
 }
@@ -120,13 +118,19 @@ function parseRefereeOutput(
   round: number,
   maxRounds: number
 ): RefereeOutput {
-  // Most reliable: find JSON object boundaries directly
-  const startIdx = response.indexOf('{');
-  const endIdx = response.lastIndexOf('}');
+  // Try to find JSON in code block first
+  const codeBlockMatch = response.match(/```json\s*([\s\S]*?)\s*```/);
+  let jsonStr = '';
 
-  let jsonStr = response;
-  if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
-    jsonStr = response.slice(startIdx, endIdx + 1);
+  if (codeBlockMatch) {
+    jsonStr = codeBlockMatch[1];
+  } else {
+    // Fallback: find JSON object boundaries
+    const startIdx = response.indexOf('{');
+    const endIdx = response.lastIndexOf('}');
+    if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+      jsonStr = response.slice(startIdx, endIdx + 1);
+    }
   }
 
   try {
@@ -140,26 +144,11 @@ function parseRefereeOutput(
     const validated = RefereeOutputSchema.parse(parsed);
     return validated;
   } catch (error) {
-    // Return a minimal valid output if parsing fails
+    // Return a minimal valid output with raw response as summary
     console.error('Failed to parse referee output:', error);
     return {
       verdict: round >= maxRounds ? 'MAX_ROUNDS_REACHED' : 'CONTINUE',
-      round_summary: `Parse error: ${response.slice(0, 200)}...`,
-      debater_a_assessment: {
-        strengths: [],
-        weaknesses: ['Unable to assess due to parse error'],
-        evidence_quality: 0.5,
-        reasoning_quality: 0.5,
-      },
-      debater_b_assessment: {
-        strengths: [],
-        weaknesses: ['Unable to assess due to parse error'],
-        evidence_quality: 0.5,
-        reasoning_quality: 0.5,
-      },
-      areas_of_agreement: [],
-      areas_of_disagreement: [],
-      recommendations: ['Please review the raw output for details'],
+      summary: response || 'Unable to parse referee analysis',
     };
   }
 }
@@ -171,16 +160,15 @@ export function checkForDeadlock(history: RoundData[]): boolean {
   // Get the last 3 rounds
   const recent = history.slice(-3);
 
-  // Check if positions have been stable
-  const positionsA = recent.map((r) => r.debaterAOutput.position);
-  const positionsB = recent.map((r) => r.debaterBOutput.position);
+  // Check if arguments have been stable (similar content)
+  const argumentsA = recent.map((r) => r.debaterAOutput.argument);
+  const argumentsB = recent.map((r) => r.debaterBOutput.argument);
 
-  // Simple check: if positions haven't changed significantly
-  const aStable = positionsA.every(
-    (p) => similarity(p, positionsA[0]) > 0.8
+  const aStable = argumentsA.every(
+    (a) => similarity(a, argumentsA[0]) > 0.8
   );
-  const bStable = positionsB.every(
-    (p) => similarity(p, positionsB[0]) > 0.8
+  const bStable = argumentsB.every(
+    (a) => similarity(a, argumentsB[0]) > 0.8
   );
 
   // Check if confidence levels are stable

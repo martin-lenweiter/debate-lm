@@ -17,72 +17,21 @@ export const ModelConfigSchema = z.object({
 
 export type ModelConfig = z.infer<typeof ModelConfigSchema>;
 
-// Claim source types
-export const ClaimSourceTypeSchema = z.enum([
-  'web_search',
-  'web_fetch',
-  'python_calculation',
-  'file_evidence',
-  'logical_deduction',
-  'prior_knowledge',
-  'opponent_concession'
-]);
-
-export type ClaimSourceType = z.infer<typeof ClaimSourceTypeSchema>;
-
-export const ClaimSourceSchema = z.object({
-  type: ClaimSourceTypeSchema,
-  content: z.string(),
+// Source reference (simplified)
+export const SourceRefSchema = z.object({
+  type: z.enum(['web_search', 'web_fetch', 'python_calc', 'file', 'deduction', 'prior']),
+  label: z.string(),
   url: z.string().optional(),
-  timestamp: z.string().optional(),
 });
 
-export type ClaimSource = z.infer<typeof ClaimSourceSchema>;
+export type SourceRef = z.infer<typeof SourceRefSchema>;
 
-// Claim structure
-export const ClaimSchema = z.object({
-  statement: z.string(),
-  confidence: z.number().min(0).max(1),
-  sources: z.array(ClaimSourceSchema),
-  rebuttals_considered: z.array(z.string()).optional(),
-});
-
-export type Claim = z.infer<typeof ClaimSchema>;
-
-// Position change tracking
-export const PositionChangeSchema = z.object({
-  from: z.string(),
-  to: z.string(),
-  trigger: z.string(),
-  round: z.number(),
-});
-
-export type PositionChange = z.infer<typeof PositionChangeSchema>;
-
-// Agreement tracking
-export const AgreementSchema = z.object({
-  claim: z.string(),
-  since_round: z.number(),
-  confidence: z.number().min(0).max(1),
-});
-
-export type Agreement = z.infer<typeof AgreementSchema>;
-
-// Debater output
+// Debater output (conversational format)
 export const DebaterOutputSchema = z.object({
-  position: z.string(),
   confidence: z.number().min(0).max(1),
-  claims: z.array(ClaimSchema),
-  counterarguments: z.array(z.object({
-    target_claim: z.string(),
-    rebuttal: z.string(),
-    confidence: z.number().min(0).max(1),
-  })),
+  argument: z.string(), // Natural prose with inline [source:X] markers
   concessions: z.array(z.string()).nullish(),
-  position_changes: z.array(PositionChangeSchema).nullish(),
-  agreements_with_opponent: z.array(AgreementSchema).nullish(),
-  open_questions: z.array(z.string()).nullish(),
-  reasoning_summary: z.string(),
+  sources: z.array(SourceRefSchema).nullish(), // Referenced sources
 });
 
 export type DebaterOutput = z.infer<typeof DebaterOutputSchema>;
@@ -98,28 +47,13 @@ export const VerdictTypeSchema = z.enum([
 
 export type VerdictType = z.infer<typeof VerdictTypeSchema>;
 
-// Referee output
+// Referee output (conversational format)
 export const RefereeOutputSchema = z.object({
   verdict: VerdictTypeSchema,
-  round_summary: z.string(),
-  debater_a_assessment: z.object({
-    strengths: z.array(z.string()),
-    weaknesses: z.array(z.string()),
-    evidence_quality: z.number().min(0).max(1),
-    reasoning_quality: z.number().min(0).max(1),
-  }),
-  debater_b_assessment: z.object({
-    strengths: z.array(z.string()),
-    weaknesses: z.array(z.string()),
-    evidence_quality: z.number().min(0).max(1),
-    reasoning_quality: z.number().min(0).max(1),
-  }),
-  areas_of_agreement: z.array(z.string()),
-  areas_of_disagreement: z.array(z.string()),
+  summary: z.string(), // Natural prose analysis
   consensus_statement: z.string().nullish(),
   user_input_prompt: z.string().nullish(),
   deadlock_reason: z.string().nullish(),
-  recommendations: z.array(z.string()).nullish(),
 });
 
 export type RefereeOutput = z.infer<typeof RefereeOutputSchema>;
