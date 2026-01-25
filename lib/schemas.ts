@@ -19,7 +19,7 @@ export type ModelConfig = z.infer<typeof ModelConfigSchema>;
 
 // Source reference (simplified)
 export const SourceRefSchema = z.object({
-  type: z.enum(['web_search', 'web_fetch', 'python_calc', 'file', 'deduction', 'prior']),
+  type: z.enum(['web_search', 'web_fetch', 'python_calc', 'file', 'deduction', 'prior', 'reasoning']),
   label: z.string(),
   url: z.string().optional(),
 });
