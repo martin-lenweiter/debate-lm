@@ -61,8 +61,8 @@ export async function runDebaterTurn(
   const thinkingBlocks: string[] = [];
   const toolCalls: Array<{ name: string; input: unknown; result: string }> = [];
 
-  // Tool use loop - limit iterations to prevent timeout
-  const MAX_TOOL_ITERATIONS = 2;
+  // Tool use loop - limit iterations to prevent timeout on Vercel (60s limit)
+  const MAX_TOOL_ITERATIONS = 1;
   let continueLoop = true;
   let finalResponse = '';
   let toolIteration = 0;
