@@ -61,8 +61,10 @@ export async function runDebaterTurn(
   const thinkingBlocks: string[] = [];
   const toolCalls: Array<{ name: string; input: unknown; result: string }> = [];
 
-  // Tool use loop - limit iterations to prevent timeout on Vercel (60s limit)
-  const MAX_TOOL_ITERATIONS = 1;
+  // Tool use loop - allow up to 3 tool iterations
+  // Key optimization: Only use extended thinking on first call and final response
+  // Tool result processing calls skip thinking to save time (~5s vs ~20s per call)
+  const MAX_TOOL_ITERATIONS = 3;
   let continueLoop = true;
   let finalResponse = '';
   let toolIteration = 0;
@@ -71,15 +73,24 @@ export async function runDebaterTurn(
     // Reset finalResponse each iteration - we only want text from the final response
     finalResponse = '';
 
-    // Use extended thinking with tools (disable tools after hitting iteration limit)
+    // Determine if we should use tools and thinking
     const useTools = toolIteration < MAX_TOOL_ITERATIONS;
+    const isFirstCall = toolIteration === 0;
+    const isFinalCall = !useTools;
+
+    // Only use extended thinking on first call (planning) and final call (synthesizing)
+    // Skip thinking on intermediate tool result processing to stay under 60s timeout
+    const useThinking = isFirstCall || isFinalCall;
+
     const response = await client.messages.create({
       model: modelId,
       max_tokens: 16000,
-      thinking: {
-        type: 'enabled',
-        budget_tokens: useTools ? 5000 : 3000, // Less thinking for final response
-      },
+      ...(useThinking && {
+        thinking: {
+          type: 'enabled',
+          budget_tokens: isFirstCall ? 5000 : 3000,
+        },
+      }),
       ...(useTools && { tools: DEBATER_TOOLS as Anthropic.Messages.Tool[] }),
       messages: messages as Anthropic.Messages.MessageParam[],
     });
