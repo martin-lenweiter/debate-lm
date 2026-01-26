@@ -13,6 +13,7 @@ interface DebaterViewProps {
   output?: DebaterOutput;
   isThinking?: boolean;
   thinkingText?: string;
+  streamingText?: string;
   toolUse?: { name: string; input: unknown };
   variant: 'A' | 'B';
 }
@@ -23,6 +24,7 @@ export function DebaterView({
   output,
   isThinking,
   thinkingText,
+  streamingText,
   toolUse,
   variant,
 }: DebaterViewProps) {
@@ -88,6 +90,19 @@ export function DebaterView({
                 })()}
               </p>
             ) : null}
+          </div>
+        )}
+
+        {streamingText && !output && (
+          <div className="p-3 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-md">
+            <div className="flex items-center gap-2 text-sm mb-2">
+              <Badge variant="outline" className="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700">
+                Generating
+              </Badge>
+            </div>
+            <div className="text-sm text-green-700 dark:text-green-300 font-mono whitespace-pre-wrap max-h-32 overflow-y-auto">
+              {streamingText.slice(-500)}
+            </div>
           </div>
         )}
 

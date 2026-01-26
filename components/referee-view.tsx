@@ -10,6 +10,7 @@ interface RefereeViewProps {
   output?: RefereeOutput;
   isThinking?: boolean;
   thinkingText?: string;
+  streamingText?: string;
   debaterAName: string;
   debaterBName: string;
 }
@@ -35,6 +36,7 @@ export function RefereeView({
   output,
   isThinking,
   thinkingText,
+  streamingText,
 }: RefereeViewProps) {
   return (
     <Card className="border-l-4 border-l-referee">
@@ -71,6 +73,18 @@ export function RefereeView({
                 {thinkingText}
               </p>
             )}
+          </div>
+        )}
+
+        {streamingText && !output && (
+          <div className="p-3 bg-purple-50 dark:bg-purple-950 border border-purple-200 dark:border-purple-800 rounded-md">
+            <div className="flex items-center gap-2 text-sm mb-2">
+              <span className="inline-block w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
+              <span className="text-purple-700 dark:text-purple-300 font-medium">Generating analysis...</span>
+            </div>
+            <div className="text-sm text-purple-700 dark:text-purple-300 font-mono whitespace-pre-wrap max-h-32 overflow-y-auto">
+              {streamingText.slice(-500)}
+            </div>
           </div>
         )}
 

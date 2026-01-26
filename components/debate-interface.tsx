@@ -41,6 +41,9 @@ interface CurrentRoundState {
   debaterAThinking?: string;
   debaterBThinking?: string;
   refereeThinking?: string;
+  debaterAText?: string;
+  debaterBText?: string;
+  refereeText?: string;
   debaterAToolUse?: { name: string; input: unknown };
   debaterBToolUse?: { name: string; input: unknown };
   activeAgent?: 'debaterA' | 'debaterB' | 'referee';
@@ -122,6 +125,7 @@ export function DebateInterface() {
           ...prev,
           debaterAOutput: (event.data as { output: DebaterOutput }).output,
           debaterAThinking: undefined,
+          debaterAText: undefined,
           debaterAToolUse: undefined,
           activeAgent: undefined,
         }));
@@ -132,6 +136,14 @@ export function DebateInterface() {
           ...prev,
           activeAgent: 'debaterA',
           debaterAToolUse: event.data as { name: string; input: unknown },
+        }));
+        break;
+
+      case 'debater_a_text':
+        setCurrentRound((prev) => ({
+          ...prev,
+          activeAgent: 'debaterA',
+          debaterAText: (prev.debaterAText || '') + (event.data as { text: string }).text,
         }));
         break;
 
@@ -148,6 +160,7 @@ export function DebateInterface() {
           ...prev,
           debaterBOutput: (event.data as { output: DebaterOutput }).output,
           debaterBThinking: undefined,
+          debaterBText: undefined,
           debaterBToolUse: undefined,
           activeAgent: undefined,
         }));
@@ -161,6 +174,14 @@ export function DebateInterface() {
         }));
         break;
 
+      case 'debater_b_text':
+        setCurrentRound((prev) => ({
+          ...prev,
+          activeAgent: 'debaterB',
+          debaterBText: (prev.debaterBText || '') + (event.data as { text: string }).text,
+        }));
+        break;
+
       case 'referee_thinking':
         setCurrentRound((prev) => ({
           ...prev,
@@ -169,11 +190,20 @@ export function DebateInterface() {
         }));
         break;
 
+      case 'referee_text':
+        setCurrentRound((prev) => ({
+          ...prev,
+          activeAgent: 'referee',
+          refereeText: (prev.refereeText || '') + (event.data as { text: string }).text,
+        }));
+        break;
+
       case 'referee_complete':
         setCurrentRound((prev) => ({
           ...prev,
           refereeOutput: (event.data as { output: RefereeOutput }).output,
           refereeThinking: undefined,
+          refereeText: undefined,
           activeAgent: undefined,
         }));
         break;
@@ -631,6 +661,7 @@ export function DebateInterface() {
                     output={currentRound.debaterAOutput}
                     isThinking={currentRound.activeAgent === 'debaterA'}
                     thinkingText={currentRound.debaterAThinking}
+                    streamingText={currentRound.debaterAText}
                     toolUse={currentRound.debaterAToolUse}
                     variant="A"
                   />
@@ -640,6 +671,7 @@ export function DebateInterface() {
                     output={currentRound.debaterBOutput}
                     isThinking={currentRound.activeAgent === 'debaterB'}
                     thinkingText={currentRound.debaterBThinking}
+                    streamingText={currentRound.debaterBText}
                     toolUse={currentRound.debaterBToolUse}
                     variant="B"
                   />
@@ -649,6 +681,7 @@ export function DebateInterface() {
                   output={currentRound.refereeOutput}
                   isThinking={currentRound.activeAgent === 'referee'}
                   thinkingText={currentRound.refereeThinking}
+                  streamingText={currentRound.refereeText}
                   debaterAName={debaterAName}
                   debaterBName={debaterBName}
                 />
