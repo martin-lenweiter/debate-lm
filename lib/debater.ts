@@ -73,24 +73,23 @@ export async function runDebaterTurn(
     // Reset finalResponse each iteration - we only want text from the final response
     finalResponse = '';
 
-    // Determine if we should use tools and thinking
+    // Determine if we should use tools
     const useTools = toolIteration < MAX_TOOL_ITERATIONS;
     const isFirstCall = toolIteration === 0;
     const isFinalCall = !useTools;
 
-    // Only use extended thinking on first call (planning) and final call (synthesizing)
-    // Skip thinking on intermediate tool result processing to stay under 60s timeout
-    const useThinking = isFirstCall || isFinalCall;
+    // Always enable thinking (API requires consistent thinking blocks in conversation)
+    // Use larger budget for first/final calls, smaller for intermediate tool processing
+    // Minimum budget is 1024 tokens
+    const thinkingBudget = isFirstCall ? 5000 : isFinalCall ? 3000 : 1024;
 
     const response = await client.messages.create({
       model: modelId,
       max_tokens: 16000,
-      ...(useThinking && {
-        thinking: {
-          type: 'enabled',
-          budget_tokens: isFirstCall ? 5000 : 3000,
-        },
-      }),
+      thinking: {
+        type: 'enabled',
+        budget_tokens: thinkingBudget,
+      },
       ...(useTools && { tools: DEBATER_TOOLS as Anthropic.Messages.Tool[] }),
       messages: messages as Anthropic.Messages.MessageParam[],
     });
@@ -116,11 +115,9 @@ export async function runDebaterTurn(
 
     // Check if we need to handle tool calls
     if (response.stop_reason === 'tool_use') {
-      // Add assistant message WITHOUT thinking blocks (API rejects thinking blocks in history when thinking is disabled)
-      const contentWithoutThinking = assistantContent.filter(
-        (block) => (block as { type: string }).type !== 'thinking'
-      );
-      messages.push({ role: 'assistant', content: contentWithoutThinking });
+      // Add assistant message with all content including thinking blocks
+      // (API requires thinking blocks in history when thinking is enabled)
+      messages.push({ role: 'assistant', content: assistantContent });
 
       // Execute tools and collect results
       const toolResults: Array<{
