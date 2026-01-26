@@ -41,6 +41,8 @@ interface CurrentRoundState {
   debaterAThinking?: string;
   debaterBThinking?: string;
   refereeThinking?: string;
+  debaterAToolUse?: { name: string; input: unknown };
+  debaterBToolUse?: { name: string; input: unknown };
   activeAgent?: 'debaterA' | 'debaterB' | 'referee';
 }
 
@@ -120,7 +122,16 @@ export function DebateInterface() {
           ...prev,
           debaterAOutput: (event.data as { output: DebaterOutput }).output,
           debaterAThinking: undefined,
+          debaterAToolUse: undefined,
           activeAgent: undefined,
+        }));
+        break;
+
+      case 'debater_a_tool_use':
+        setCurrentRound((prev) => ({
+          ...prev,
+          activeAgent: 'debaterA',
+          debaterAToolUse: event.data as { name: string; input: unknown },
         }));
         break;
 
@@ -137,7 +148,16 @@ export function DebateInterface() {
           ...prev,
           debaterBOutput: (event.data as { output: DebaterOutput }).output,
           debaterBThinking: undefined,
+          debaterBToolUse: undefined,
           activeAgent: undefined,
+        }));
+        break;
+
+      case 'debater_b_tool_use':
+        setCurrentRound((prev) => ({
+          ...prev,
+          activeAgent: 'debaterB',
+          debaterBToolUse: event.data as { name: string; input: unknown },
         }));
         break;
 
@@ -611,6 +631,7 @@ export function DebateInterface() {
                     output={currentRound.debaterAOutput}
                     isThinking={currentRound.activeAgent === 'debaterA'}
                     thinkingText={currentRound.debaterAThinking}
+                    toolUse={currentRound.debaterAToolUse}
                     variant="A"
                   />
                   <DebaterView
@@ -619,6 +640,7 @@ export function DebateInterface() {
                     output={currentRound.debaterBOutput}
                     isThinking={currentRound.activeAgent === 'debaterB'}
                     thinkingText={currentRound.debaterBThinking}
+                    toolUse={currentRound.debaterBToolUse}
                     variant="B"
                   />
                 </div>

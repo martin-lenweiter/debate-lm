@@ -13,6 +13,7 @@ interface DebaterViewProps {
   output?: DebaterOutput;
   isThinking?: boolean;
   thinkingText?: string;
+  toolUse?: { name: string; input: unknown };
   variant: 'A' | 'B';
 }
 
@@ -22,6 +23,7 @@ export function DebaterView({
   output,
   isThinking,
   thinkingText,
+  toolUse,
   variant,
 }: DebaterViewProps) {
   const badgeVariant = variant === 'A' ? 'debaterA' : 'debaterB';
@@ -63,6 +65,29 @@ export function DebaterView({
                 {thinkingText}
               </p>
             )}
+          </div>
+        )}
+
+        {toolUse && (
+          <div className="p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-md">
+            <div className="flex items-center gap-2 text-sm">
+              <Badge variant="outline" className="bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700">
+                Tool
+              </Badge>
+              <span className="font-medium text-blue-700 dark:text-blue-300">
+                {toolUse.name}
+              </span>
+            </div>
+            {toolUse.input !== undefined && toolUse.input !== null ? (
+              <p className="text-xs mt-1.5 text-blue-600 dark:text-blue-400 font-mono truncate">
+                {(() => {
+                  const str = typeof toolUse.input === 'object'
+                    ? JSON.stringify(toolUse.input)
+                    : String(toolUse.input);
+                  return str.length > 100 ? str.slice(0, 100) + '...' : str;
+                })()}
+              </p>
+            ) : null}
           </div>
         )}
 
