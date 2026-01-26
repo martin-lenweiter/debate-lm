@@ -116,8 +116,11 @@ export async function runDebaterTurn(
 
     // Check if we need to handle tool calls
     if (response.stop_reason === 'tool_use') {
-      // Add assistant message with all content (including thinking)
-      messages.push({ role: 'assistant', content: assistantContent });
+      // Add assistant message WITHOUT thinking blocks (API rejects thinking blocks in history when thinking is disabled)
+      const contentWithoutThinking = assistantContent.filter(
+        (block) => (block as { type: string }).type !== 'thinking'
+      );
+      messages.push({ role: 'assistant', content: contentWithoutThinking });
 
       // Execute tools and collect results
       const toolResults: Array<{

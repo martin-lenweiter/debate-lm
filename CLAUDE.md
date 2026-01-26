@@ -87,16 +87,26 @@ A structured multi-LLM debate system where 2 debaters argue toward truth on a to
 
 ## Verification
 
-**IMPORTANT: Always test in a live browser before handing over work.** Use browser automation tools to navigate to localhost:3000 and verify the application works correctly. Do not rely solely on build/lint passing - visually confirm the UI renders and functions as expected.
+**CRITICAL: NEVER commit code without completing ALL verification steps. Build/lint/test passing is NOT sufficient.**
+
+### Mandatory Pre-Commit Checklist
 
 1. **Run test suite**: `npm run test` - All tests must pass
 2. **Run linter**: `npm run lint` - No errors
 3. **Build check**: `npm run build` - Build must succeed
-4. **Start app**: `npm run dev` - Navigate to localhost:3000
-5. **Browser checks**:
+4. **Clear cache and restart**: `rm -rf .next && npm run dev`
+5. **MANDATORY BROWSER TEST**:
+   - Open http://localhost:3000 in a real browser (not just curl)
+   - Check browser DevTools console - NO errors allowed
+   - Verify the page renders correctly (no blank page, no "Server Error")
+   - Click through the main UI elements to confirm interactivity
+   - If browser automation is unavailable, ask user to verify manually before committing
+6. **Browser checks**:
    - No console errors (open browser DevTools)
    - UI renders correctly without hydration mismatches
    - All components display properly
+   - No "Cannot read properties of undefined" errors
+   - No hydration mismatch warnings
 6. **Test debate flow**:
    - Start a debate with a simple topic
    - Verify debaters produce valid JSON output
@@ -124,6 +134,22 @@ A structured multi-LLM debate system where 2 debaters argue toward truth on a to
    - Check real-time updates during debate rounds
    - Ensure debate history is preserved
 11. **Commit**: Only if all checks pass - use `gcp "brief message"`
+
+### If Browser Automation Unavailable
+
+If browser automation tools are not connected:
+1. **DO NOT commit blindly** - ask the user to manually test first
+2. Run `curl -s http://localhost:3000 | grep -i error` to check for obvious errors
+3. Check that the dev server shows no compile errors in terminal
+4. Ask user: "Can you please open localhost:3000 and confirm the page loads without errors before I commit?"
+5. Only commit after user confirms the app works
+
+### Post-Commit Verification
+
+After pushing, verify on Vercel deployment if applicable:
+1. Check the deployment succeeded
+2. Visit the live URL and confirm no errors
+3. If errors occur on deployment, fix immediately
 
 ## What "Working" Means
 
