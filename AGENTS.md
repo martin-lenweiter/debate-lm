@@ -82,7 +82,7 @@ A structured multi-LLM debate system where 2 debaters argue toward truth on a to
 2. **Ask Questions**: Don't hesitate to ask for clarifications - push back when needed
 3. **Implement**: Write feature code + comprehensive tests
 4. **Review**: Clean up code, remove useless comments, minimize diff
-5. **Verification**: See what needs to be done in the "verification" section of CLAUDE.md
+5. **Verification**: See what needs to be done in the "verification" section of this file.
 6. **Commit and Push**: Use `gcp` with clear, brief message
 
 ## Verification
